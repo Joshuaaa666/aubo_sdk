@@ -1,0 +1,4 @@
+/home/lingao/Desktop/Python_sdk_linux/data_generation/build_fruit_centroid/CMakeFiles/depth2obj.dir
+/home/lingao/Desktop/Python_sdk_linux/data_generation/build_fruit_centroid/CMakeFiles/get_fruit_centroid.dir
+/home/lingao/Desktop/Python_sdk_linux/data_generation/build_fruit_centroid/CMakeFiles/edit_cache.dir
+/home/lingao/Desktop/Python_sdk_linux/data_generation/build_fruit_centroid/CMakeFiles/rebuild_cache.dir
