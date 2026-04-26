@@ -1,0 +1,17 @@
+# C++ 编译文件夹
+build/
+dataset/
+
+# 视频文件
+*.mkv
+*.mp4
+*.avi
+*.obj
+*.pcd
+*.ply
+# 编辑器
+.vscode/
+
+# 系统文件
+.DS_Store
+Thumbs.db
