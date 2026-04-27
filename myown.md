@@ -4,7 +4,7 @@ make
 cd /home/lingao/Desktop/Python_sdk_linux/data_generation/build_fruit_centroid && ./get_fruit_centroid
 C++程序: 只负责获取相机坐标系质心和手眼标定变换
 Python程序: 负责连接机械臂获取实时姿态并完成最终坐标计算 、发送转换后的质心位置到机械臂去运动
-
+# 初始化
 python2 get_init.py
 初始位置关节角度: [1.5895, -0.4545, -2.1783, -1.5664, -1.5630, 0.7595]
 笛卡尔坐标: X=0.1279, Y=-0.2991, Z=0.4943

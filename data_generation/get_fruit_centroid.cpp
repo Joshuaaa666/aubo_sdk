@@ -8,6 +8,43 @@
 #include <cstdlib>  
 #include <fstream>
 #include <sstream>
+#include <sys/wait.h>
+
+void logLine(std::ofstream* log_file, const std::string& line) {
+    std::cout << line << std::endl;
+    if (log_file && log_file->is_open()) {
+        (*log_file) << line << std::endl;
+    }
+}
+
+void logRaw(std::ofstream* log_file, const std::string& text) {
+    std::cout << text;
+    if (log_file && log_file->is_open()) {
+        (*log_file) << text;
+    }
+}
+
+int runCommandWithTee(const std::string& command, std::ofstream* log_file) {
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe) {
+        logLine(log_file, "无法执行命令: " + command);
+        return -1;
+    }
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+        logRaw(log_file, std::string(buffer));
+    }
+
+    int status = pclose(pipe);
+    if (status == -1) {
+        return -1;
+    }
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status);
+    }
+    return status;
+}
 
 // 计算点云质心的核心函数
 bool computeCloudCentroid(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud, Eigen::Vector3d& center_cam) {
@@ -28,7 +65,7 @@ Eigen::Matrix4d buildToolToCamera() {
     tool_T_cam <<
         0.13551828522285903,  0.99077427969707599,  0.0010588016795823466, -135.91254527050771,
        -0.99077376072521717,  0.13551964081471257, -0.0013349201705961042,  -51.733981386034912,
-       -0.0014666929937864665,-0.0008681268295133869, 0.99999854846251723,  -90.646138164038007,
+       -0.0014660929937864665,-0.0008681268295133869, 0.99999854846251723,  -90.646138164038007,
         0.0,                  0.0,                  0.0,                    1.0;
 
     // mm -> m
@@ -62,19 +99,25 @@ Eigen::Matrix4d poseToMatrix(const std::vector<double>& pose) {
 Eigen::Vector3d transformCamPointToBase(const Eigen::Vector3d& point_cam,
                                         const Eigen::Matrix4d& base_T_tool,
                                         const Eigen::Matrix4d& tool_T_cam) {
-    Eigen::Vector4d p_cam(point_cam.x(), point_cam.y(), point_cam.z(), 1.0);
+    // 参考YOLOv11项目，对点云质心进行偏移校正
+    // 这些偏移值可能需要根据实际测试结果进行调整
+    Eigen::Vector3d corrected_point = point_cam;
+    corrected_point.y() += 0.20;  // Y轴偏移 20cm
+    corrected_point.z() += 0.02;  // Z轴偏移 5cm
+
+    Eigen::Vector4d p_cam(corrected_point.x(), corrected_point.y(), corrected_point.z(), 1.0);
     Eigen::Vector4d p_base = base_T_tool * tool_T_cam * p_cam;
     return p_base.head<3>();
 }
 
 // 从Python脚本获取真实的机械臂位姿
-bool getBaseToToolFromRobotReal(Eigen::Matrix4d& base_T_tool) {
+bool getBaseToToolFromRobotReal(Eigen::Matrix4d& base_T_tool, std::ofstream* log_file) {
     // 调用Python脚本来获取机械臂的真实位姿
     std::string command = "python2 /home/lingao/Desktop/Python_sdk_linux/python_test/get_data.py 2>/dev/null";
     
     FILE* pipe = popen(command.c_str(), "r");
     if (!pipe) {
-        std::cerr << "无法执行Python脚本获取机械臂位置" << std::endl;
+        logLine(log_file, "无法执行Python脚本获取机械臂位置");
         return false;
     }
     
@@ -84,11 +127,12 @@ bool getBaseToToolFromRobotReal(Eigen::Matrix4d& base_T_tool) {
         result += buffer;
     }
     pclose(pipe);
-    std::cout << "DEBUG: Python脚本输出内容:\n" << result << std::endl;
+    logLine(log_file, "DEBUG: Python脚本输出内容:");
+    logRaw(log_file, result + "\n");
     // 检查是否成功获取数据
     if (result.find("笛卡尔坐标(米)") == std::string::npos) {
-        std::cerr << "Python脚本执行失败或未返回有效数据" << std::endl;
-        std::cerr << "返回内容: " << result << std::endl;
+        logLine(log_file, "Python脚本执行失败或未返回有效数据");
+        logLine(log_file, "返回内容: " + result);
         return false;
     }
     
@@ -96,11 +140,12 @@ bool getBaseToToolFromRobotReal(Eigen::Matrix4d& base_T_tool) {
     std::istringstream iss(result);
     std::string line;
     double x = 0, y = 0, z = 0;
-    double rx = 0, ry = 0, rz = 0;
+    double qw = 1.0, qx = 0.0, qy = 0.0, qz = 0.0;
     bool found_pos = false;
+    bool found_quat = false;
     
     while (std::getline(iss, line)) {
-        std::cout << "DEBUG: 处理行: " << line << std::endl;
+        logLine(log_file, "DEBUG: 处理行: " + line);
         // 查找笛卡尔坐标的行
         if (line.find("笛卡尔坐标(米)") != std::string::npos) {
             // 解析 X, Y, Z 坐标
@@ -115,28 +160,35 @@ bool getBaseToToolFromRobotReal(Eigen::Matrix4d& base_T_tool) {
                 found_pos = true;
             }
         }
-        // 查找欧拉角姿态的行
-        else if (line.find("欧拉角姿态(弧度)") != std::string::npos) {
-            // 解析 RX, RY, RZ 角度
-            size_t rx_pos = line.find("RX=");
-            size_t ry_pos = line.find(", RY=");
-            size_t rz_pos = line.find(", RZ=");
-            
-            if (rx_pos != std::string::npos && ry_pos != std::string::npos && rz_pos != std::string::npos) {
-                rx = std::stod(line.substr(rx_pos + 3, ry_pos - rx_pos - 3));
-                ry = std::stod(line.substr(ry_pos + 5, rz_pos - ry_pos - 5));
-                rz = std::stod(line.substr(rz_pos + 5));
+        // 查找四元数姿态的行
+        else if (line.find("四元数姿态") != std::string::npos) {
+            size_t w_pos = line.find("W=");
+            size_t x_pos = line.find(", X=");
+            size_t y_pos = line.find(", Y=");
+            size_t z_pos = line.find(", Z=");
+
+            if (w_pos != std::string::npos && x_pos != std::string::npos &&
+                y_pos != std::string::npos && z_pos != std::string::npos) {
+                qw = std::stod(line.substr(w_pos + 2, x_pos - w_pos - 2));
+                qx = std::stod(line.substr(x_pos + 4, y_pos - x_pos - 4));
+                qy = std::stod(line.substr(y_pos + 4, z_pos - y_pos - 4));
+                qz = std::stod(line.substr(z_pos + 4));
+                found_quat = true;
             }
         }
     }
     
-    if (found_pos) {
-        // 构建变换矩阵
-        std::vector<double> pose = {x, y, z, rx, ry, rz};
-        base_T_tool = poseToMatrix(pose);
+    if (found_pos && found_quat) {
+        // 使用真实四元数构建姿态矩阵，避免将欧拉角误当旋转向量导致的姿态误差
+        base_T_tool = Eigen::Matrix4d::Identity();
+        base_T_tool.block<3, 1>(0, 3) = Eigen::Vector3d(x, y, z);
+
+        Eigen::Quaterniond q(qw, qx, qy, qz);
+        q.normalize();
+        base_T_tool.block<3, 3>(0, 0) = q.toRotationMatrix();
         return true;
     } else {
-        std::cerr << "无法从Python脚本输出中解析机械臂位姿" << std::endl;
+        logLine(log_file, "无法从Python脚本输出中解析机械臂位姿（位置或四元数缺失）");
         return false;
     }
 }
@@ -168,9 +220,6 @@ int main() {
     cv::Rect resultBox;
     bool has_roi = false;
 
-    std::cout << "=== 水果质心获取工具（含坐标变换） ===" << std::endl;
-    std::cout << "按键说明: r=选择目标框, s=获取水果质心并转换坐标, ESC=退出" << std::endl;
-    
     // 添加时间戳的日志文件
     time_t now = time(0);
     char timestamp[100];
@@ -182,6 +231,9 @@ int main() {
         log_file << "开始时间: " << ctime(&now);
         log_file << "=========================================" << std::endl;
     }
+
+    logLine(&log_file, "=== 水果质心获取工具（含坐标变换） ===");
+    logLine(&log_file, "按键说明: r=选择目标框, s=获取水果质心并转换坐标, ESC=退出");
 
 
     while (true) {
@@ -216,29 +268,31 @@ int main() {
             if (selected.width > 0 && selected.height > 0) {
                 resultBox = selected;
                 has_roi = true;
-                std::cout << "ROI选择完成: [" 
-                          << resultBox.x << ", " << resultBox.y << ", "
-                          << resultBox.width << ", " << resultBox.height << "]" << std::endl;
+                std::ostringstream roi_msg;
+                roi_msg << "ROI选择完成: ["
+                        << resultBox.x << ", " << resultBox.y << ", "
+                        << resultBox.width << ", " << resultBox.height << "]";
+                logLine(&log_file, roi_msg.str());
             } else {
-                std::cout << "ROI选择已取消。" << std::endl;
+                logLine(&log_file, "ROI选择已取消。");
             }
         }
 
         if (key == 's' || key == 'S') {
             // 获取水果质心
             if (!has_roi) {
-                std::cout << "请先按 r 选择目标框。" << std::endl;
+                logLine(&log_file, "请先按 r 选择目标框。");
                 continue;
             }
             if (aligned_depth.empty()) {
-                std::cout << "深度图为空，跳过处理。" << std::endl;
+                logLine(&log_file, "深度图为空，跳过处理。");
                 continue;
             }
 
             // 生成ROI点云
             pcl::PointCloud<pcl::PointXYZRGB>::Ptr roi_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
             if (!kinect->depthImageToPointCloudInROI(aligned_depth, resultBox, roi_cloud, raw_frame)) {
-                std::cout << "ROI点云生成失败。" << std::endl;
+                logLine(&log_file, "ROI点云生成失败。");
                 continue;
             }
 
@@ -251,18 +305,17 @@ int main() {
             // 计算质心（相机坐标系）
             Eigen::Vector3d center_cam;
             if (!computeCloudCentroid(target_cloud, center_cam)) {
-                std::cout << "无法计算点云质心。" << std::endl;
+                logLine(&log_file, "无法计算点云质心。");
                 continue;
             }
 
             // 获取机械臂当前姿态（基座到工具的变换矩阵）
             Eigen::Matrix4d base_T_tool = Eigen::Matrix4d::Identity();
-            bool has_base_pose = getBaseToToolFromRobotReal(base_T_tool);  // 使用真实的机械臂姿态
+            bool has_base_pose = getBaseToToolFromRobotReal(base_T_tool, &log_file);  // 使用真实的机械臂姿态
             
-            // 如果无法获取真实姿态，使用模拟姿态
+            // 无法获取真实姿态时，不做坐标转换与运动，避免使用错误姿态导致大偏差
             if (!has_base_pose) {
-                std::cout << "无法获取真实机械臂姿态，使用模拟姿态(固定初始姿态)" << std::endl;
-                has_base_pose = getBaseToToolFromRobotSimulated(base_T_tool);
+                logLine(&log_file, "无法获取真实机械臂姿态，已跳过基座坐标转换与移动命令。");
             }
 
             // 转换到机械臂基座坐标系
@@ -272,17 +325,41 @@ int main() {
             }
 
             // 输出结果
-            std::cout << "\n=== 水果质心坐标 ===" << std::endl;
-            std::cout << "相机坐标系（单位：米）:" << std::endl;
-            std::cout << "  X: " << center_cam.x() << " m" << std::endl;
-            std::cout << "  Y: " << center_cam.y() << " m" << std::endl;
-            std::cout << "  Z: " << center_cam.z() << " m" << std::endl;
+            logLine(&log_file, "\n=== 水果质心坐标 ===");
+            logLine(&log_file, "相机坐标系（单位：米）:");
+            {
+                std::ostringstream oss;
+                oss << "  X: " << center_cam.x() << " m";
+                logLine(&log_file, oss.str());
+            }
+            {
+                std::ostringstream oss;
+                oss << "  Y: " << center_cam.y() << " m";
+                logLine(&log_file, oss.str());
+            }
+            {
+                std::ostringstream oss;
+                oss << "  Z: " << center_cam.z() << " m";
+                logLine(&log_file, oss.str());
+            }
             
             if (has_base_pose) {
-                std::cout << "机械臂基座坐标系（单位：米）:" << std::endl;
-                std::cout << "  X: " << center_base.x() << " m" << std::endl;
-                std::cout << "  Y: " << center_base.y() << " m" << std::endl;
-                std::cout << "  Z: " << center_base.z() << " m" << std::endl;
+                logLine(&log_file, "机械臂基座坐标系（单位：米）:");
+                {
+                    std::ostringstream oss;
+                    oss << "  X: " << center_base.x() << " m";
+                    logLine(&log_file, oss.str());
+                }
+                {
+                    std::ostringstream oss;
+                    oss << "  Y: " << center_base.y() << " m";
+                    logLine(&log_file, oss.str());
+                }
+                {
+                    std::ostringstream oss;
+                    oss << "  Z: " << center_base.z() << " m";
+                    logLine(&log_file, oss.str());
+                }
                 
                 
 
@@ -290,36 +367,53 @@ int main() {
                 char command[500];
                 sprintf(command, "python2 /home/lingao/Desktop/Python_sdk_linux/python_test/move_to_position.py %.6f %.6f %.6f", 
                         center_base.x(), center_base.y(), center_base.z());
-                std::cout << "执行命令: " << command << std::endl;
+                logLine(&log_file, std::string("执行命令: ") + command);
                 
-                int ret = std::system(command);
+                int ret = runCommandWithTee(command, &log_file);
                 if (ret == 0) {
-                    std::cout << "机械臂移动命令发送成功！" << std::endl;
+                    logLine(&log_file, "机械臂移动命令发送成功！");
                 } else {
-                    std::cout << "机械臂移动命令发送失败！返回值: " << ret << std::endl;
-                    std::cout << "可能的原因是目标位置超出机械臂工作空间" << std::endl;
+                    {
+                        std::ostringstream oss;
+                        oss << "机械臂移动命令发送失败！返回值: " << ret;
+                        logLine(&log_file, oss.str());
+                    }
+                    logLine(&log_file, "可能的原因是目标位置超出机械臂工作空间");
                 }
             } else {
-                std::cout << "机械臂基座坐标系：未获取到机械臂姿态，无法转换" << std::endl;
+                logLine(&log_file, "机械臂基座坐标系：未获取到机械臂姿态，无法转换");
             }
-            std::cout << "====================\n" << std::endl;
+            logLine(&log_file, "====================\n");
         }
         if (key == 't' || key == 'T') {
         // 测试简单的目标位置
         Eigen::Vector3d test_base(0.15, -0.25, 0.45);
-        std::cout << "测试移动至已知安全位置: " << test_base.transpose() << std::endl;
+        {
+            std::ostringstream oss;
+            oss << "测试移动至已知安全位置: " << test_base.transpose();
+            logLine(&log_file, oss.str());
+        }
         
         char command[500];
         sprintf(command, "python2 /home/lingao/Desktop/Python_sdk_linux/python_test/move_to_position.py %.6f %.6f %.6f", 
                 test_base.x(), test_base.y(), test_base.z());
-        system(command);
+        logLine(&log_file, std::string("执行命令: ") + command);
+        int ret = runCommandWithTee(command, &log_file);
+        if (ret == 0) {
+            logLine(&log_file, "测试移动命令执行成功！");
+        } else {
+            std::ostringstream oss;
+            oss << "测试移动命令执行失败，返回值: " << ret;
+            logLine(&log_file, oss.str());
+        }
     }
         if (key == 27) {
             break;
         }
     }
     if(log_file.is_open()) {
-        log_file << "结束时间: " << ctime(&now);
+        time_t end_time = time(0);
+        log_file << "结束时间: " << ctime(&end_time);
         log_file << "程序结束" << std::endl;
         log_file.close();
         std::cout << "日志已保存到: " << log_filename << std::endl;

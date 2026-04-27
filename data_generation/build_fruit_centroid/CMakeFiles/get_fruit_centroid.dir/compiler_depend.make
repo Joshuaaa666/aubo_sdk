@@ -2199,7 +2199,29 @@ CMakeFiles/get_fruit_centroid.dir/get_fruit_centroid.cpp.o: ../get_fruit_centroi
   /usr/include/boost/fusion/view/filter_view/detail/begin_impl.hpp \
   /usr/include/boost/fusion/view/filter_view/detail/end_impl.hpp \
   /usr/include/boost/fusion/view/filter_view/detail/size_impl.hpp \
-  /usr/include/pcl-1.10/pcl/common/impl/centroid.hpp
+  /usr/include/pcl-1.10/pcl/common/impl/centroid.hpp \
+  /usr/include/x86_64-linux-gnu/sys/wait.h \
+  /usr/include/signal.h \
+  /usr/include/x86_64-linux-gnu/bits/signum.h \
+  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+  /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+  /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+  /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+  /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+  /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+  /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+  /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+  /usr/include/x86_64-linux-gnu/bits/signal_ext.h
 
 CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
   /usr/include/stdc-predef.h \
@@ -4620,6 +4642,30 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/pcl-1.10/pcl/common/transforms.h:
 
+/usr/include/x86_64-linux-gnu/bits/sigthread.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigstack.h:
+
+/usr/include/x86_64-linux-gnu/sys/ucontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts-arch.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-consts.h:
+
+/usr/include/x86_64-linux-gnu/bits/siginfo-arch.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum.h:
+
 /usr/include/boost/fusion/view/filter_view/detail/size_impl.hpp:
 
 /usr/include/boost/fusion/view/filter_view/detail/key_of_impl.hpp:
@@ -4900,9 +4946,13 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/boost/fusion/iterator/next.hpp:
 
+/usr/include/signal.h:
+
 /usr/include/boost/fusion/iterator/detail/advance.hpp:
 
 /usr/include/boost/fusion/algorithm/query/detail/find_if.hpp:
+
+/usr/include/x86_64-linux-gnu/sys/wait.h:
 
 /usr/include/boost/fusion/algorithm/query/find_if_fwd.hpp:
 
@@ -5324,6 +5374,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/c++/9/bits/stl_stack.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h:
+
 /usr/include/boost/mpl/aux_/config/ttp.hpp:
 
 /usr/include/opencv4/opencv2/ml/ml.inl.hpp:
@@ -5466,6 +5518,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/eigen3/Eigen/src/Core/ArrayBase.h:
 
+/usr/include/x86_64-linux-gnu/bits/sigevent-consts.h:
+
 /usr/include/pcl-1.10/pcl/search/octree.h:
 
 /usr/include/eigen3/Eigen/src/plugins/ArrayCwiseBinaryOps.h:
@@ -5555,6 +5609,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 /usr/include/boost/fusion/support/detail/enabler.hpp:
 
 /usr/include/pcl-1.10/pcl/common/concatenate.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
 
 /usr/include/vtk-7.1/vtkIOStream.h:
 
@@ -5843,6 +5899,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 /usr/include/boost/type_traits/intrinsics.hpp:
 
 /usr/include/boost/range/rend.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/ss_flags.h:
 
 /usr/include/boost/type_traits/make_unsigned.hpp:
 
@@ -6710,6 +6768,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/c++/9/ios:
 
+/usr/include/x86_64-linux-gnu/bits/sigaction.h:
+
 /usr/include/eigen3/Eigen/src/Core/products/SelfadjointProduct.h:
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
@@ -7145,6 +7205,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
 /usr/include/vtk-7.1/vtkConfigure.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h:
 
 /usr/include/opencv4/opencv2/flann/miniflann.hpp:
 
@@ -7780,6 +7842,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 
 /usr/include/boost/detail/select_type.hpp:
 
+/usr/include/x86_64-linux-gnu/bits/signal_ext.h:
+
 /usr/include/boost/iterator/detail/enable_if.hpp:
 
 /usr/include/boost/type_traits/add_const.hpp:
@@ -7919,6 +7983,8 @@ CMakeFiles/get_fruit_centroid.dir/kinect_camera.cpp.o: ../kinect_camera.cpp \
 /usr/include/opencv4/opencv2/videostab/ring_buffer.hpp:
 
 /usr/include/boost/utility/swap.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/types/stack_t.h:
 
 /usr/include/boost/fusion/support/sequence_base.hpp:
 

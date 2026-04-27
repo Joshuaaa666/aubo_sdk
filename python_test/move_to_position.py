@@ -18,7 +18,7 @@ except ImportError as e:
 
 RS_SUCC = 0
 
-def main(target_x, target_y, target_z):
+def main(target_x, target_y, target_z, shutdown_after_move=False):
     print "尝试移动到位置: X=%.6f, Y=%.6f, Z=%.6f 米" % (target_x, target_y, target_z)
     
     # 初始化libpyauboi5库
@@ -65,7 +65,7 @@ def main(target_x, target_y, target_z):
         # 目标姿态（暂时保持当前姿态）
         target_ori = current_waypoint['ori']
 
-        print "目标位置(毫米): %s" % str(target_pos)
+        print "目标位置(米): %s" % str(target_pos)
         print "目标姿态: %s" % str(target_ori)
 
         # 计算逆运动学
@@ -101,8 +101,10 @@ def main(target_x, target_y, target_z):
         # 等待移动完成
         time.sleep(2)
 
-        # 关闭机器人
-        libpyauboi5.robot_shutdown(RSHD)
+        # 默认不在每次运动后关闭机器人，避免看起来像“断电”。
+        if shutdown_after_move:
+            libpyauboi5.robot_shutdown(RSHD)
+            print "已按参数请求关闭机器人"
 
     except Exception as e:
         print "移动过程中发生错误: %s" % str(e)
@@ -119,8 +121,8 @@ def main(target_x, target_y, target_z):
     return True
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print "Usage: python move_to_position.py <x> <y> <z>"
+    if len(sys.argv) not in (4, 5):
+        print "Usage: python move_to_position.py <x> <y> <z> [--shutdown]"
         print "参数: x, y, z 坐标值（单位：米）"
         sys.exit(1)
 
@@ -129,7 +131,8 @@ if __name__ == "__main__":
         y = float(sys.argv[2])
         z = float(sys.argv[3])
         
-        success = main(x, y, z)
+        shutdown_after_move = (len(sys.argv) == 5 and sys.argv[4] == "--shutdown")
+        success = main(x, y, z, shutdown_after_move)
         if success:
             print "任务完成"
         else:

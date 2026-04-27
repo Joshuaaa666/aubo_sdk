@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- 
+  Copyright (c) Microsoft Corporation. All rights reserved.
+  Licensed under the MIT License.
+-->
+
+<robot name="azure-kinect" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="tf_prefix" default=""/>
+
+  <material name="black">
+    <color rgba="0. 0. 0. 1" />
+  </material>
+  <material name="dark_grey">
+    <color rgba="0.1 0.1 0.1 1" />
+  </material>
+  <material name="grey">
+    <color rgba="0.6 0.6 0.6 1" />
+  </material>
+  <material name="white">
+    <color rgba="0.9 0.9 0.9 1" />
+  </material>
+
+
+  <!-- ================== Azure Kinect 宏定义 ================== <origin xyz="-0.013 0. 0." />-->
+  <xacro:macro name="azure_kinect" params="prefix">
+    <link name="${prefix}camera_body">
+      <visual>
+        <origin xyz="0. 0. 0." />
+        <geometry>
+          <box size="0.0994 0.0996 0.023" />
+        </geometry>
+        <material name="white" />
+      </visual>
+    </link>
+
+    <link name="${prefix}camera_base">
+      <visual>
+        <origin xyz="-0.013 0. 0." />
+        <geometry>
+          <box size="0.026 0.103 0.039" />
+        </geometry>
+        <material name="grey" />
+      </visual>
+    </link>
+
+    <link name="${prefix}camera_visor">
+      <visual>
+        <origin xyz="-0.0128 0. 0." />
+        <geometry>
+          <box size="0.026 0.101 0.037" />
+        </geometry>
+        <material name="black" />
+      </visual>
+    </link>
+
+    <joint name="${prefix}camera_base_to_body" type="fixed">
+      <parent link="${prefix}camera_base" />
+      <child link="${prefix}camera_body" />
+      <origin xyz="-0.0757 0. 0.008" rpy="0. 0. 0." />
+    </joint>
+
+    <joint name="${prefix}camera_base_to_visor" type="fixed">
+      <parent link="${prefix}camera_base" />
+      <child link="${prefix}camera_visor" />
+      <origin xyz="0. 0. 0." rpy="0. 0. 0." />
+    </joint>
+
+
+    <sensor name="${prefix}camera_depth" type="ray">
+      <origin xyz="0 0 1" rpy="0 0 0"/>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples value="720"/>
+            <resolution value="1"/>
+            <min_angle value="-1.5708"/>
+            <max_angle value="1.5708"/>
+          </horizontal>
+        </scan>
+        <range>
+          <min value="0.1"/>  <!-- 最小测距距离 -->
+          <max value="10.0"/> <!-- 最大测距距离 -->
+          <resolution value="0.01"/> <!-- 测距分辨率 -->
+        </range>
+      </ray>
+    </sensor>
+  
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="mobile.SLDASM">
+  <link
+    name="base">
+    <inertial>
+      <origin
+        xyz="-0.000678009319750454 -0.000933578246398035 0.365997848809861"
+        rpy="0 0 0" />
+      <mass
+        value="50.0005804550328" />
+      <inertia
+        ixx="0.927083479613"
+        ixy="-7.82570746146962E-10"
+        ixz="6.07365200756405E-08"
+        iyy="1.30208348831245"
+        iyz="-6.82878445432891E-09"
+        izz="1.70833347356503" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+        
+          filename="package://aubo_description/meshes/AGV/base.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/base.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="link1">
+    <inertial>
+      <origin
+        xyz="1.78341398479887E-05 -1.19306774397088E-05 -0.0106376169832055"
+        rpy="0 0 0" />
+      <mass
+        value="7.52426174439998" />
+      <inertia
+        ixx="0.0713176882486698"
+        ixy="2.66385960144516E-06"
+        ixz="1.31696507036528E-06"
+        iyy="0.0713168017780368"
+        iyz="1.37317216329238E-06"
+        izz="0.130202175107688" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint1"
+    type="revolute">
+    <origin
+      xyz="0.223444719292505 0.24927407921646 0.060700390237856"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base" />
+    <child
+      link="link1" />
+    <axis
+      xyz="0 0 0.999999999999999" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link2">
+    <inertial>
+      <origin
+        xyz="1.78341398480164E-05 -1.19306774397157E-05 -0.0106376169832055"
+        rpy="0 0 0" />
+      <mass
+        value="7.52426174439999" />
+      <inertia
+        ixx="0.0713176882486698"
+        ixy="2.66385960144803E-06"
+        ixz="1.31696507036276E-06"
+        iyy="0.0713168017780368"
+        iyz="1.37317216329607E-06"
+        izz="0.130202175107688" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint2"
+    type="revolute">
+    <origin
+      xyz="-0.224804310210463 0.24927407921646 0.060700390237856"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base" />
+    <child
+      link="link2" />
+    <axis
+      xyz="0 0 0.999999999999999" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link3">
+    <inertial>
+      <origin
+        xyz="-2.14556049782932E-05 -2.33716289411989E-07 0.0106376169832056"
+        rpy="0 0 0" />
+      <mass
+        value="7.52426174439995" />
+      <inertia
+        ixx="0.0713149835815557"
+        ixy="-1.47598500995125E-06"
+        ixz="3.51474002385736E-07"
+        iyy="0.0713195064451499"
+        iyz="-1.86988363602951E-06"
+        izz="0.130202175107687" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint3"
+    type="revolute">
+    <origin
+      xyz="0.223444724682146 -0.251141797718238 0.0607003886333045"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base" />
+    <child
+      link="link3" />
+    <axis
+      xyz="0 0 -0.999999999999999" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="link4">
+    <inertial>
+      <origin
+        xyz="-2.1455604978321E-05 -2.33716289398112E-07 0.0106376169832055"
+        rpy="0 0 0" />
+      <mass
+        value="7.52426174439995" />
+      <inertia
+        ixx="0.0713149835815557"
+        ixy="-1.47598500993561E-06"
+        ixz="3.51474002386319E-07"
+        iyy="0.0713195064451499"
+        iyz="-1.86988363602778E-06"
+        izz="0.130202175107687" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://aubo_description/meshes/AGV/link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="joint4"
+    type="revolute">
+    <origin
+      xyz="-0.224804304820822 -0.251141797718238 0.0607003886333045"
+      rpy="1.5707963267949 0 0" />
+    <parent
+      link="base" />
+    <child
+      link="link4" />
+    <axis
+      xyz="0 0 -0.999999999999999" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+</robot>
